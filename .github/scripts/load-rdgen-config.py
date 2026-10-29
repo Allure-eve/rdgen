@@ -25,8 +25,9 @@ def prepare(config, icon=False):
     return {'server':server,'serverPort':str(port),'key':key,'apiServer':'',
             'appname':name,'filename':filename,'androidappid':appid,'custom':encoded,
             'compname':'Home','urlLink':'https://rustdesk.com','downloadLink':'https://rustdesk.com/download',
-            'iconlink_url':'local' if icon else 'false','delayFix':'false','xOffline':'false',
-            'hidecm':'false','removeNewVersionNotif':'false','update_public_key':''}
+            'iconlink_url':'local' if icon else 'false',
+            **{k:'true' if config.get(k,False) else 'false' for k in ['delayFix','xOffline','hidecm','removeNewVersionNotif']},
+            'update_public_key':''}
 
 def main():
     version=os.environ.get('BUILD_VERSION','')
@@ -35,6 +36,10 @@ def main():
     if icon.exists():
         if icon.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Custom icon must be a PNG')
         shutil.copyfile(icon,pathlib.Path(os.environ['RUNNER_TEMP'])/'rdgen-icon.png')
+    logo=pathlib.Path('.github/assets/rdgen-logo.png')
+    if logo.exists():
+        if logo.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Custom logo must be a PNG')
+        shutil.copyfile(logo,pathlib.Path(os.environ['RUNNER_TEMP'])/'rdgen-logo.png')
     config=prepare(json.loads(os.environ['BUILD_CONFIG_JSON']),icon.exists())
     with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
         for name,value in config.items():

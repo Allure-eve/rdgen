@@ -1,4 +1,3 @@
-# Derived from bryangerlach/rdgen @ 073447b88aeeac20ef1811af539b9ed181e1d9cf; see original repository license.
 name: Standalone Android APK
 run-name: Standalone Android ${{ inputs.version }} / ${{ inputs.architectures }}
 env:
@@ -224,6 +223,14 @@ jobs:
       with:
         prefix-key: rustdesk-lib-cache-android
         key: ${{ matrix.job.target }}
+    - name: Install custom Flutter logo
+      shell: bash
+      run: |
+        if [ -f "$RUNNER_TEMP/rdgen-logo.png" ]; then
+          for asset in logo.png logo_light.png logo_dark.png; do
+            cp "$RUNNER_TEMP/rdgen-logo.png" "flutter/assets/$asset"
+          done
+        fi
     - name: icon stuff
       if: ${{ env.iconlink_url != 'false' }}
       uses: nick-fields/retry@v3
